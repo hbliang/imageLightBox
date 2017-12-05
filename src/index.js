@@ -11,7 +11,7 @@ const imageLightBox = function (selector, options = {}) {
         showToolbar: true,
         downloadUrl: '',
         imageProcessing: false, // sometime image you want to popup is processing.
-        cache: true
+        cache: false
     }
 
     this.options = util.extend(defaultOptions, options);
@@ -24,34 +24,43 @@ const imageLightBox = function (selector, options = {}) {
                 let div = document.createElement('div');
                 div.id = this.id;
                 div.className = 'imageLightBoxOverlay';
-                div.style = "text-align: center; background-color: rgba(0, 0, 0, 0.8); opacity: 1; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000;";
+
+                div.style['text-align'] = 'center';
+                div.style['background-color'] = 'rgba(0, 0, 0, 0.8)';
+                div.style['opacity'] = '1';
+                div.style['position'] = 'fixed';
+                div.style['top'] = '0';
+                div.style['left'] = '0';
+                div.style['width'] = '100%';
+                div.style['height'] = '100%';
+                div.style['z-index'] = '100000';
 
                 div.appendChild(self.toolbar.dom());
                 div.appendChild(self.loading.dom());
 
                 let img = util.htmlToDom('<div data-x="0" data-y="0" style="transform: translate3d(0px, 0px, 0px);" class="image_wrapper"><img data-src="' + self.findImageUrl() + '" class="image" data-scale="1" style="transform: scale3d(1, 1, 1);"></div>');
 
-                img.addEventListener('dblclick', (e) => {
-                    if (this.img().getAttribute('data-scale') > 1) {
-                        self.zoomOut();
-                    } else {
-                        let pageX = e.pageX;
-                        let pageY = e.pageY;
+                // img.addEventListener('dblclick', (e) => {
+                //     if (this.img().getAttribute('data-scale') > 1) {
+                //         self.zoomOut();
+                //     } else {
+                //         let pageX = e.pageX;
+                //         let pageY = e.pageY;
 
-                        let overlayWidth = util.windowWidth();
-                        let overlayHeight = util.windowHeight() + 52;
+                //         let overlayWidth = util.windowWidth();
+                //         let overlayHeight = util.windowHeight() - 44;
 
-                        let x = (overlayWidth / 2 - pageX);
-                        let y = (overlayHeight / 2 - pageY);
+                //         let x = (overlayWidth / 2 - pageX);
+                //         let y = (overlayHeight / 2 - pageY);
 
-                        let imageWrapper = this.dom().querySelector('.image_wrapper');;
-                        imageWrapper.setAttribute('data-x', x);
-                        imageWrapper.setAttribute('data-y', y);
-                        imageWrapper.style.transform = 'translate3d(' + x + 'px ,' + y + 'px , 0px)'
+                //         let imageWrapper = this.dom().querySelector('.image_wrapper');;
+                //         imageWrapper.setAttribute('data-x', x);
+                //         imageWrapper.setAttribute('data-y', y);
+                //         imageWrapper.style.transform = 'translate3d(' + x + 'px ,' + y + 'px , 0px)'
  
-                        self.zoomUp();
-                    }
-                })
+                //         self.zoomUp();
+                //     }
+                // })
                 div.appendChild(img);
 
                 this.instance = div;
@@ -109,9 +118,9 @@ const imageLightBox = function (selector, options = {}) {
                 div.className = 'toolbar';
 
                 this.buttons.close = util.htmlToDom('<a href="javascript: void(0);"><i style="float: right" class="fa fa-times fa-2x" aria-hidden="true"></i></a>');
-                this.buttons.download = util.htmlToDom('<a class="download" onclick="event.stopPropagation();" target="_blank" href="' + self.options.downloadUrl + '" download><i style="float: right" class="fa fa-download fa-2x" aria-hidden="true"></i></a>');
-                this.buttons.zoomUp = util.htmlToDom('<a href="javascript: void(0);" class="zoomUp"><i style="float: right" class="fa fa-search-plus fa-2x" aria-hidden="true"></i></a>')
-                this.buttons.zoomOut = util.htmlToDom('<a href="javascript: void(0);" class="zoomOut disabled" disabled="true"><i style="float: right" class="fa fa-search-minus fa-2x" aria-hidden="true"></i></a>')
+                this.buttons.download = util.htmlToDom('<a style="display: none;" class="download" onclick="event.stopPropagation();" target="_blank" href="' + self.options.downloadUrl + '" download><i style="float: right" class="fa fa-download fa-2x" aria-hidden="true"></i></a>');
+                this.buttons.zoomUp = util.htmlToDom('<a style="display: none;" href="javascript: void(0);" class="zoomUp"><i style="float: right" class="fa fa-search-plus fa-2x" aria-hidden="true"></i></a>')
+                this.buttons.zoomOut = util.htmlToDom('<a style="display: none;" href="javascript: void(0);" class="zoomOut disabled"><i style="float: right" class="fa fa-search-minus fa-2x" aria-hidden="true"></i></a>')
                 div.appendChild(this.buttons.close);
                 div.appendChild(this.buttons.download);
                 div.appendChild(this.buttons.zoomUp);
@@ -180,7 +189,7 @@ const imageLightBox = function (selector, options = {}) {
                 maxMovementX = minMovementX = maxMovementY = minMovementY = 0;
             } else if (scale > 1) {
                 const windowWidth = util.windowWidth();
-                const windowHeight = util.windowHeight();
+                const windowHeight = util.windowHeight() - 44;
 
                 if (imgOriginalWidth * scale > windowWidth) {
                     maxMovementX = (imgOriginalWidth * scale - windowWidth) / 2
@@ -322,16 +331,23 @@ imageLightBox.prototype.loadImage = function () {
     this.loading.show();
 
     img.onload = () => {
+        this.toolbar.buttons.zoomOut.style.display = 'inline';
+        this.toolbar.buttons.zoomUp.style.display = 'inline';        
+        this.toolbar.buttons.download.style.display = 'inline';
         this.loading.hide();
     }
 }
 
-imageLightBox.prototype.imageProcessComplete = function () {
+imageLightBox.prototype.imageProcessComplete = function (src, downloadUrl, callback) {
     this.options.imageProcessing = false;
     var img = this.overlay.img();
     img.setAttribute('data-src', src);
     this.overlay.dom().querySelector('a.download').setAttribute('href', downloadUrl);
     this.loadImage();
+
+    if (callback) {
+        callback();
+    }
 }
 
 module.exports = imageLightBox;

@@ -52,7 +52,7 @@ describe('util', function () {
         });
     })
 
-    describe('#hasClass()', function() {
+    describe('#hasClass()', function () {
         it('check to have class', function () {
             const el = document.createElement('div');
             el.className = 'abc de fgh';
@@ -76,5 +76,5 @@ describe('util', function () {
             util.removeClass(el, 'de');
             assert.notInclude(el.className, 'de');
         });
-    })
+    });
 });

@@ -29,7 +29,7 @@
         width: 100%;
         background-color: rgba(0, 0, 0, 0.8);
         z-index: 9999999999;
-
+        height: 44px;
         a.disabled {
             pointer-events: none;
             color: inherit;
@@ -38,7 +38,7 @@
 
     .image_wrapper {
         position: absolute;
-        top: 52px;
+        top: 44px;
         bottom: 0;
         left: 0;
         right: 0;

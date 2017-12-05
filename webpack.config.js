@@ -1,6 +1,8 @@
 const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const es3ifyPlugin = require('es3ify-webpack-plugin');
 
 module.exports = {
     entry: './src/index.js',
@@ -13,7 +15,12 @@ module.exports = {
     devtool: 'inline-source-map',
     plugins: [
         new CleanWebpackPlugin(['dist']),
-        new ExtractTextPlugin('style.css')
+        new ExtractTextPlugin('imageLightBox.css'),
+        new es3ifyPlugin()
+        // new UglifyJSPlugin({
+        //     exclude: /(node_modules|bower_components)/,
+        //     sourceMap: true
+        // })
     ],
     module: {
         rules: [
@@ -28,7 +35,7 @@ module.exports = {
                 use: ExtractTextPlugin.extract({
                     fallback: 'style-loader',
                     //resolve-url-loader may be chained before sass-loader if necessary
-                    use: ['css-loader', 'sass-loader']
+                    use: ['css-loader', 'sass-loader'],
                 })
             }, {
                 test: /\.(png|svg|jpg|gif)$/,
